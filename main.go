@@ -1,8 +1,11 @@
 package main
 
 import (
+    "backend/handler"
     "fmt"
     logger "github.com/sirupsen/logrus"
+    "github.com/gorilla/mux"
+    "net/http"
     "path"
     "runtime"
 )
@@ -18,4 +21,14 @@ func main() {
             return caller, ""
         },
     })
+
+    /*err := storage.Init()
+    if err != nil {
+        logger.WithField("error", err).Fatal("could not init storage")
+    }
+    */
+
+    router := mux.NewRouter()
+    handler.Register(router)
+    logger.Fatal(http.ListenAndServe(":8080", router))
 }
