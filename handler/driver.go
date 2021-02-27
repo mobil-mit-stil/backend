@@ -18,7 +18,7 @@ func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
 
 }
 
-func UpdateEsitmations(writer http.ResponseWriter, request *http.Request) {
+func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
 
 }
 
