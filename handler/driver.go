@@ -21,7 +21,7 @@ func StartDriverSession(writer http.ResponseWriter, request *http.Request) {
 		User:   storage.NewUser(),
 		Driver: storage.NewDriver(),
 	}
-	err := GetJsonBody(request, userDriver)
+	err := GetJsonBody(request, userDriver.Driver)
 	if err != nil {
 		logrus.Error(err)
 		writer.WriteHeader(http.StatusBadRequest)
