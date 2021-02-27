@@ -7,5 +7,8 @@ func New() *Provider {
 }
 
 func (*Provider) Init() error {
+	initUserStorage()
+	initPassengerStorage()
+	initDriverStorage()
 	return nil
 }
