@@ -17,11 +17,26 @@ type RequestResponse struct {
 }
 
 func StartPassengerSession(writer http.ResponseWriter, request *http.Request) {
+	oldSessionId, err := GetSessionId(request)
+	// found old session
+	if err == nil {
+		oldPassenger := storage.NewPassenger().WithSessionId(oldSessionId)
+		err = oldPassenger.Select()
+		if err != nil {
+			logger.Warn("could not find old session and user")
+		} else {
+			err = oldPassenger.Delete()
+			if err != nil {
+				logger.Warn("could not delete old session and user")
+			}
+		}
+	}
+
 	userPassenger := &UserPassenger{
 		User:      storage.NewUser(),
 		Passenger: storage.NewPassenger(),
 	}
-	err := GetJsonBody(request, userPassenger)
+	err = GetJsonBody(request, userPassenger)
 	if err != nil {
 		logger.Warn(err)
 		WriteHttpResponse(writer, BadRequest)

@@ -17,11 +17,26 @@ type Pickup struct {
 }
 
 func StartDriverSession(writer http.ResponseWriter, request *http.Request) {
+	oldSessionId, err := GetSessionId(request)
+	// found old session
+	if err == nil {
+		oldDriver := storage.NewDriver().WithSessionId(oldSessionId)
+		err = oldDriver.Select()
+		if err != nil {
+			logger.Warn("could not find old session and user")
+		} else {
+			err = oldDriver.Delete()
+			if err != nil {
+				logger.Warn("could not delete old session and user")
+			}
+		}
+	}
+
 	userDriver := &UserDriver{
 		User:   storage.NewUser(),
 		Driver: storage.NewDriver(),
 	}
-	err := GetJsonBody(request, userDriver)
+	err = GetJsonBody(request, userDriver)
 	if err != nil {
 		logger.Error(err)
 		writer.WriteHeader(http.StatusBadRequest)
@@ -218,6 +233,7 @@ func ConfirmRideRequest(writer http.ResponseWriter, request *http.Request) {
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		mapping.WithRequested(false)
 		if confirmation.Accepted {
 			err = mapping.WithStatus(storage.Accepted).Update()
 			if err != nil {
@@ -247,12 +263,13 @@ func ConfirmRideRequest(writer http.ResponseWriter, request *http.Request) {
 			}
 		} else {
 			err = mapping.WithStatus(storage.Denied).Update()
+			if err != nil {
+				logger.Error(err)
+				WriteHttpResponse(writer, InternalServerError)
+				return
+			}
 		}
-		if err != nil {
-			logger.Error(err)
-			WriteHttpResponse(writer, InternalServerError)
-			return
-		}
+
 	}
 	WriteHttpResponse(writer, StatusOk)
 }

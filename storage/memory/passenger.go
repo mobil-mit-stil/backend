@@ -84,6 +84,13 @@ func (m *Provider) DeletePassenger(passenger *storage.Passenger) error {
 	if err != nil {
 		return err
 	}
+
+	user := storage.NewUser().WithUserId(passenger.UserId)
+	err = user.Delete()
+	if err != nil {
+		return err
+	}
+
 	delete(passengerStorage, passenger.Session.Id)
 	return nil
 }

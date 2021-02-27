@@ -81,6 +81,13 @@ func (m *Provider) DeleteDriver(driver *storage.Driver) error {
 	if err != nil {
 		return err
 	}
+
+	user := storage.NewUser().WithUserId(driver.UserId)
+	err = user.Delete()
+	if err != nil {
+		return err
+	}
+
 	delete(driverStorage, driver.Session.Id)
 	return nil
 }
