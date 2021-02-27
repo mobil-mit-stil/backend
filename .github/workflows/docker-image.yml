@@ -11,9 +11,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      IMAGE: $(backend:$(date +%s))
     steps:
-    - run: export IMAGE=backend:$(date +%s)
     - uses: actions/checkout@v2
     - name: Login to DockerHub
       uses: docker/login-action@v1 
