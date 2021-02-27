@@ -54,16 +54,12 @@ func (m *Provider) InsertDriver(driver *storage.Driver) error {
 }
 
 func (m *Provider) UpdateDriver(driver *storage.Driver) error {
-	err := m.SelectDriver(driver)
-	if err != nil {
-		return err
-	}
 	driverMutex.Lock()
 	driverStorage[driver.Session.Id] = driver
 	driverMutex.Unlock()
 
 	passengers := make([]*storage.Passenger, 0)
-	err = m.SelectPassengers(&passengers)
+	err := m.SelectPassengers(&passengers)
 	if err != nil {
 		return err
 	}
