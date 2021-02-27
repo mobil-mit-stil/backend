@@ -3,10 +3,12 @@ package memory
 import (
 	"backend/storage"
 	"fmt"
+	"sync"
 )
 
 // map[driver][passenger]
 var mappingStorage map[storage.UserUUId]map[storage.UserUUId]*storage.Mapping
+var mappingMutex sync.Mutex
 
 func initMappingStorage() {
 	mappingStorage = make(map[storage.UserUUId]map[storage.UserUUId]*storage.Mapping, 0)
@@ -16,6 +18,9 @@ func (m *Provider) SelectSingleMapping(mapping *storage.Mapping) error {
 	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+
 	maps, ok := mappingStorage[mapping.DriverId.UUId]
 	if !ok {
 		return fmt.Errorf("could not find mapping for driver")
@@ -33,6 +38,9 @@ func (m *Provider) SelectDriverMappings(id storage.UserUUId, mappings *[]*storag
 	if !id.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+
 	maps, ok := mappingStorage[id]
 	if !ok {
 		return nil
@@ -47,6 +55,9 @@ func (m *Provider) SelectPassengerMappings(id storage.UserUUId, mappings *[]*sto
 	if !id.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+
 	for _, maps := range mappingStorage {
 		for _, mapping := range maps {
 			if mapping.PassengerId.UUId == id {
@@ -61,6 +72,9 @@ func (m *Provider) InsertMapping(mapping *storage.Mapping) error {
 	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+
 	ms, ok := mappingStorage[mapping.DriverId.UUId]
 	if !ok {
 		mappingStorage[mapping.DriverId.UUId] = make(map[storage.UserUUId]*storage.Mapping, 1)
@@ -78,6 +92,9 @@ func (m *Provider) UpdateMapping(mapping *storage.Mapping) error {
 	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+
 	ms, ok := mappingStorage[mapping.DriverId.UUId]
 	if !ok {
 		mappingStorage[mapping.DriverId.UUId] = make(map[storage.UserUUId]*storage.Mapping, 1)
@@ -91,6 +108,9 @@ func (m *Provider) DeleteMapping(mapping *storage.Mapping) error {
 	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+
 	ms, ok := mappingStorage[mapping.DriverId.UUId]
 	if !ok {
 		mappingStorage[mapping.DriverId.UUId] = make(map[storage.UserUUId]*storage.Mapping, 1)
