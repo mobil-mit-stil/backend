@@ -11,6 +11,7 @@ type Driver struct {
 func NewDriver() *Driver {
 	return &Driver{
 		SessionId: NewSessionId(),
+		UserId: "",
 		Locations: make([]LocationLongLat, 0),
 		Seats:     0,
 		Preferences: RidePreferences{
@@ -18,6 +19,11 @@ func NewDriver() *Driver {
 			Children: false,
 		},
 	}
+}
+
+func (d *Driver) WithUserId(userId UserUUId) *Driver {
+	d.UserId = userId
+	return d
 }
 
 func (d *Driver) WithLocations(locations *[]LocationLongLat) *Driver {
