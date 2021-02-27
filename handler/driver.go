@@ -151,7 +151,17 @@ func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
 	}
 	var locations []storage.LocationLongLat
 	err = GetJsonBody(request, &locations)
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
+	}
 	err = driver.WithLocations(&locations).Update()
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
+	}
 	WriteHttpResponse(writer, StatusOk)
 }
 
