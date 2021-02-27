@@ -77,7 +77,7 @@ func RequestRide(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	sleepCounter := 0
-	for sleepCounter < 30 && mapping.Status == storage.Pending {
+	for sleepCounter < 30 {
 		time.Sleep(2 * time.Second)
 		sleepCounter += 2
 		err = mapping.Select()
@@ -86,6 +86,16 @@ func RequestRide(writer http.ResponseWriter, request *http.Request) {
 			WriteHttpResponse(writer, InternalServerError)
 			return
 		}
+		if mapping.Status != storage.Pending {
+			WriteJSON(writer, &RequestResponse{Status: mapping.Status})
+			return
+		}
+	}
+	err = mapping.WithStatus(storage.Denied).Update()
+	if err != nil {
+		logger.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
 	}
 	WriteJSON(writer, &RequestResponse{Status: mapping.Status})
 }

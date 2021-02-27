@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/google/uuid"
+	logger "github.com/sirupsen/logrus"
 )
 
 type SessionUUId string
@@ -22,6 +23,9 @@ func NewUserId() UserUUId {
 
 func (u UserUUId) IsValid() bool {
 	_, err := uuid.Parse(string(u))
+	if err != nil {
+		logger.Warn(err)
+	}
 	return err == nil
 }
 

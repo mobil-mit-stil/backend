@@ -7,17 +7,17 @@ import (
 )
 
 type UserDriver struct {
-	User   *storage.User
-	Driver *storage.Driver
+	*storage.User
+	*storage.Driver
 }
 
 type Pickup struct {
-	Driver    *storage.Driver
-	Passenger *storage.Passenger
+	*storage.Driver
+	*storage.PassengerId
 }
 
 func StartDriverSession(writer http.ResponseWriter, request *http.Request) {
-	userDriver := UserDriver{
+	userDriver := &UserDriver{
 		User:   storage.NewUser(),
 		Driver: storage.NewDriver(),
 	}
@@ -49,9 +49,9 @@ func ConfirmPickup(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	pickup := Pickup{
-		Driver:    storage.NewDriver(),
-		Passenger: storage.NewPassenger(),
+	pickup := &Pickup{
+		Driver:      storage.NewDriver(),
+		PassengerId: &storage.PassengerId{},
 	}
 	err = pickup.Driver.WithSessionId(sessionId).Select()
 	if err != nil {
@@ -59,13 +59,21 @@ func ConfirmPickup(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err = GetJsonBody(request, pickup.Passenger)
+	err = GetJsonBody(request, pickup.PassengerId)
 	if err != nil {
 		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err = pickup.Passenger.Delete()
+	user := storage.NewUser().WithUserId(pickup.PassengerId.UUId)
+	err = user.Select()
+	if err != nil {
+		logger.Warn(err)
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	passenger := storage.NewPassenger().WithSessionId(user.SessionId).WithUserId(user.UserId)
+	err = passenger.Delete()
 	if err != nil {
 		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)

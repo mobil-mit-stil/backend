@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/storage"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -57,4 +58,26 @@ func Register(baseRouter *mux.Router) {
 			Methods(http.MethodPost).
 			HandlerFunc(UpdatePassengerLocation)
 	}
+
+	baseRouter.
+		Path("/debug").
+		Methods(http.MethodGet).
+		HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			var users []*storage.User
+			_ = storage.GetProvider().SelectUsers(&users)
+			WriteJSON(writer, users)
+
+			var drivers []*storage.Driver
+			_ = storage.GetProvider().SelectDrivers(&drivers)
+			WriteJSON(writer, drivers)
+
+			var passengers []*storage.Passenger
+			_ = storage.GetProvider().SelectPassengers(&passengers)
+			WriteJSON(writer, passengers)
+
+			var mappings []*storage.Mapping
+			_ = storage.GetProvider().SelectMappings(&mappings)
+			WriteJSON(writer, mappings)
+
+		})
 }
