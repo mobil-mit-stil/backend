@@ -4,11 +4,16 @@ import (
 	"backend/storage"
 	logger "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 type UserPassenger struct {
 	*storage.User
 	*storage.Passenger
+}
+
+type RequestResponse struct {
+	Status storage.Status `json:"status"`
 }
 
 func StartPassengerSession(writer http.ResponseWriter, request *http.Request) {
@@ -65,13 +70,24 @@ func RequestRide(writer http.ResponseWriter, request *http.Request) {
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	err = mapping.WithRequested(true).Update()
+	err = mapping.WithRequested(true).WithStatus(storage.Pending).Update()
 	if err != nil {
 		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	WriteHttpResponse(writer, StatusOk)
+	sleepCounter := 0
+	for sleepCounter < 30 && mapping.Status == storage.Pending {
+		time.Sleep(2 * time.Second)
+		sleepCounter += 2
+		err = mapping.Select()
+		if err != nil {
+			logger.Error(err)
+			WriteHttpResponse(writer, InternalServerError)
+			return
+		}
+	}
+	WriteJSON(writer, &RequestResponse{Status: mapping.Status})
 }
 
 func GetDriverInfo(writer http.ResponseWriter, request *http.Request) {
