@@ -30,6 +30,9 @@ func (m *Provider) SelectSingleMapping(mapping *storage.Mapping) error {
 }
 
 func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings []*storage.Mapping) error {
+	if !id.IsValid() {
+		return fmt.Errorf("driverId or passengerId not correct")
+	}
 	maps, ok := mappingStorage[id]
 	if !ok {
 		return nil
@@ -41,6 +44,9 @@ func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings []*storage.
 }
 
 func (m *Provider) SelectPassengerMapping(id storage.UserUUId, mappings []*storage.Mapping) error {
+	if !id.IsValid() {
+		return fmt.Errorf("driverId or passengerId not correct")
+	}
 	for _, maps := range mappingStorage {
 		for _, mapping := range maps {
 			if mapping.PassengerId.UUId == id {
@@ -52,13 +58,44 @@ func (m *Provider) SelectPassengerMapping(id storage.UserUUId, mappings []*stora
 }
 
 func (m *Provider) InsertMapping(mapping *storage.Mapping) error {
+	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
+		return fmt.Errorf("driverId or passengerId not correct")
+	}
+	ms, ok := mappingStorage[mapping.DriverId.UUId]
+	if !ok {
+		mappingStorage[mapping.DriverId.UUId] = make(map[storage.UserUUId]*storage.Mapping, 1)
+		ms = mappingStorage[mapping.DriverId.UUId]
+	}
+	_, ok = ms[mapping.PassengerId.UUId]
+	if ok {
+		return fmt.Errorf("mapping already exists")
+	}
+	ms[mapping.PassengerId.UUId] = mapping
 	return nil
 }
 
 func (m *Provider) UpdateMapping(mapping *storage.Mapping) error {
+	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
+		return fmt.Errorf("driverId or passengerId not correct")
+	}
+	ms, ok := mappingStorage[mapping.DriverId.UUId]
+	if !ok {
+		mappingStorage[mapping.DriverId.UUId] = make(map[storage.UserUUId]*storage.Mapping, 1)
+		ms = mappingStorage[mapping.DriverId.UUId]
+	}
+	ms[mapping.PassengerId.UUId] = mapping
 	return nil
 }
 
 func (m *Provider) DeleteMapping(mapping *storage.Mapping) error {
+	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
+		return fmt.Errorf("driverId or passengerId not correct")
+	}
+	ms, ok := mappingStorage[mapping.DriverId.UUId]
+	if !ok {
+		mappingStorage[mapping.DriverId.UUId] = make(map[storage.UserUUId]*storage.Mapping, 1)
+		ms = mappingStorage[mapping.DriverId.UUId]
+	}
+	delete(ms, mapping.PassengerId.UUId)
 	return nil
 }
