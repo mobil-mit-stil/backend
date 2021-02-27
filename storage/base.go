@@ -11,8 +11,18 @@ func NewSessionId() SessionUUId {
 	return SessionUUId(uuid.New().String())
 }
 
+func (s SessionUUId) IsValid() bool {
+	_, err := uuid.Parse(string(s))
+	return err == nil
+}
+
 func NewUserId() UserUUId {
 	return UserUUId(uuid.New().String())
+}
+
+func (u UserUUId) IsValid() bool {
+	_, err := uuid.Parse(string(u))
+	return err == nil
 }
 
 type Session struct {

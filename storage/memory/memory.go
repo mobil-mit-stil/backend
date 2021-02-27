@@ -10,5 +10,6 @@ func (*Provider) Init() error {
 	initUserStorage()
 	initPassengerStorage()
 	initDriverStorage()
+	initMappingStorage()
 	return nil
 }

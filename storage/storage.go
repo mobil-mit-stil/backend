@@ -26,8 +26,8 @@ type Provider interface {
 	DeletePassenger(passenger *Passenger) error
 
 	SelectSingleMapping(mapping *Mapping) error
-	SelectDriverMapping(id SessionUUId, mapping *[]Mapping) error
-	SelectPassengerMapping(id SessionUUId, mapping *[]Mapping) error
+	SelectDriverMapping(id UserUUId, mappings []*Mapping) error
+	SelectPassengerMapping(id UserUUId, mappings []*Mapping) error
 	InsertMapping(mapping *Mapping) error
 	UpdateMapping(mapping *Mapping) error
 	DeleteMapping(mapping *Mapping) error

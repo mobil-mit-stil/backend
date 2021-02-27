@@ -12,7 +12,7 @@ func initPassengerStorage() {
 }
 
 func (m *Provider) SelectPassenger(passenger *storage.Passenger) error {
-	dbPassenger, ok := passengerStorage[passenger.SessionId]
+	dbPassenger, ok := passengerStorage[passenger.Session.Id]
 	if !ok {
 		return fmt.Errorf("passenger not found")
 	}
@@ -21,7 +21,7 @@ func (m *Provider) SelectPassenger(passenger *storage.Passenger) error {
 }
 
 func (m *Provider) InsertPassenger(passenger *storage.Passenger) error {
-	passengerStorage[passenger.SessionId] = passenger
+	passengerStorage[passenger.Session.Id] = passenger
 	return nil
 }
 
@@ -30,11 +30,11 @@ func (m *Provider) UpdatePassenger(passenger *storage.Passenger) error {
 	if err != nil {
 		return err
 	}
-	passengerStorage[passenger.SessionId] = passenger
+	passengerStorage[passenger.Session.Id] = passenger
 	return nil
 }
 
 func (m *Provider) DeletePassenger(passenger *storage.Passenger) error {
-	delete(passengerStorage, passenger.SessionId)
+	delete(passengerStorage, passenger.Session.Id)
 	return nil
 }

@@ -13,7 +13,7 @@ type Passenger struct {
 func NewPassenger() *Passenger {
 	return &Passenger{
 		Session: NewSession(),
-		UserId:    "",
+		UserId:  "",
 		Location: LocationLongLat{
 			Long: 0,
 			Lat:  0,
@@ -29,6 +29,11 @@ func NewPassenger() *Passenger {
 			Children: false,
 		},
 	}
+}
+
+func (p *Passenger) WithSessionId(sessionId SessionUUId) *Passenger {
+	p.Session.Id = sessionId
+	return p
 }
 
 func (p *Passenger) WithUserId(userId UserUUId) *Passenger {
