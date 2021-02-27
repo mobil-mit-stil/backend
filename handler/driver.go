@@ -136,7 +136,23 @@ func GetPassengerInfo(writer http.ResponseWriter, request *http.Request) {
 }
 
 func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
-
+	sessionId, err := GetSessionId(request)
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, BadRequest)
+		return
+	}
+	driver := storage.NewDriver()
+	err = driver.WithSessionId(sessionId).Select()
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
+	}
+	var locations []storage.LocationLongLat
+	err = GetJsonBody(request, &locations)
+	err = driver.WithLocations(&locations).Update()
+	WriteHttpResponse(writer, StatusOk)
 }
 
 func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
