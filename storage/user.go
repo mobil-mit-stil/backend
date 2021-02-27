@@ -44,3 +44,7 @@ func (u *User) Update() error {
 func (u *User) Delete() error {
 	return provider.DeleteUser(u)
 }
+
+func SelectUsers(users *[]*User) error {
+	return provider.SelectUsers(users)
+}

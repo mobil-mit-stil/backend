@@ -31,5 +31,8 @@ func main() {
 
 	router := mux.NewRouter()
 	handler.Register(router)
-	logger.Fatal(http.ListenAndServe(":8080", router))
+
+	port := ":8080"
+	logger.WithField("port", port).Info("starting server")
+	logger.Fatal(http.ListenAndServe(port, router))
 }

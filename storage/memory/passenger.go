@@ -41,7 +41,7 @@ func (m *Provider) InsertPassenger(passenger *storage.Passenger) error {
 	passengerStorage[passenger.Session.Id] = passenger
 	passengerMutex.Unlock()
 
-	var drivers []*storage.Driver
+	drivers := make([]*storage.Driver, 0)
 	err := m.SelectDrivers(&drivers)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (m *Provider) UpdatePassenger(passenger *storage.Passenger) error {
 	passengerStorage[passenger.Session.Id] = passenger
 	passengerMutex.Unlock()
 
-	var drivers []*storage.Driver
+	drivers := make([]*storage.Driver, 0)
 	err = m.SelectDrivers(&drivers)
 	if err != nil {
 		return err

@@ -129,14 +129,14 @@ func GetDriverInfo(writer http.ResponseWriter, request *http.Request) {
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	var mappings []*storage.Mapping
+	mappings := make([]*storage.Mapping, 0)
 	err = storage.SelectPassengerMapping(passenger.UserId, &mappings)
 	if err != nil {
 		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	var information []*storage.PassengerInfo
+	information := make([]*storage.PassengerInfo, 0)
 	for _, mapping := range mappings {
 		user := storage.NewUser().WithUserId(mapping.DriverId.UUId)
 		err = user.Select()

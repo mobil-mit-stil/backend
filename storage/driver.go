@@ -61,3 +61,7 @@ func (d *Driver) Update() error {
 func (d *Driver) Delete() error {
 	return provider.DeleteDriver(d)
 }
+
+func SelectDrivers(drivers *[]*Driver) error {
+	return provider.SelectDrivers(drivers)
+}

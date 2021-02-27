@@ -134,7 +134,7 @@ func (m *Provider) DeleteMapping(mapping *storage.Mapping) error {
 }
 
 func (m *Provider) deletePassengerAssociatedMappings(id storage.UserUUId) error {
-	var mappings []*storage.Mapping
+	mappings := make([]*storage.Mapping, 0)
 	err := m.SelectPassengerMappings(id, &mappings)
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func (m *Provider) deletePassengerAssociatedMappings(id storage.UserUUId) error 
 }
 
 func (m *Provider) deleteDriverAssociatedMappings(id storage.UserUUId) error {
-	var mappings []*storage.Mapping
+	mappings := make([]*storage.Mapping, 0)
 	err := m.SelectDriverMappings(id, &mappings)
 	if err != nil {
 		return err

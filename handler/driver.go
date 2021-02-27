@@ -111,14 +111,14 @@ func GetPassengerInfo(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	var mappings []*storage.Mapping
+	mappings := make([]*storage.Mapping, 0)
 	err = storage.SelectDriverMapping(driver.UserId, &mappings)
 	if err != nil {
 		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	var information []*storage.DriverInfo
+	information := make([]*storage.DriverInfo, 0)
 	for _, mapping := range mappings {
 		user := storage.NewUser()
 		err = user.WithUserId(mapping.PassengerId.UUId).Select()
@@ -159,7 +159,7 @@ func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	var locations []storage.LocationLongLat
+	locations := make([]storage.LocationLongLat, 0)
 	err = GetJsonBody(request, &locations)
 	if err != nil {
 		logger.Error(err)
@@ -189,7 +189,7 @@ func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	var estimations []*storage.Estimation
+	estimations := make([]*storage.Estimation, 0)
 	err = GetJsonBody(request, &estimations)
 	for _, estimation := range estimations {
 		mapping := storage.NewMapping(driver.UserId, estimation.PassengerId.UUId)
@@ -223,7 +223,7 @@ func ConfirmRideRequest(writer http.ResponseWriter, request *http.Request) {
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
-	var confirmations []*storage.Confirmation
+	confirmations := make([]*storage.Confirmation, 0)
 	err = GetJsonBody(request, &confirmations)
 	for _, confirmation := range confirmations {
 		mapping := storage.NewMapping(driver.UserId, confirmation.PassengerId.UUId)

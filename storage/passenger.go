@@ -81,3 +81,7 @@ func (p *Passenger) Update() error {
 func (p *Passenger) Delete() error {
 	return provider.DeletePassenger(p)
 }
+
+func SelectPassengers(passengers *[]*Passenger) error {
+	return provider.SelectPassengers(passengers)
+}

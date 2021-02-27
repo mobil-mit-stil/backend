@@ -43,7 +43,3 @@ func Init(specificProvider Provider) error {
 	provider = specificProvider
 	return provider.Init()
 }
-
-func GetProvider() Provider {
-	return provider
-}
