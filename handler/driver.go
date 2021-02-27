@@ -88,7 +88,51 @@ func ConfirmPickup(writer http.ResponseWriter, request *http.Request) {
 }
 
 func GetPassengerInfo(writer http.ResponseWriter, request *http.Request) {
-
+	sessionId, err := GetSessionId(request)
+	if err != nil {
+		logrus.Error(err)
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	driver := storage.NewDriver()
+	err = driver.WithSessionId(sessionId).Select()
+	if err != nil {
+		logrus.Error(err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var mappings []*storage.Mapping
+	err = storage.SelectDriverMapping(driver.UserId, &mappings)
+	if err != nil {
+		logrus.Error(err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var information []*storage.DriverInfo
+	for _, mapping := range mappings {
+		user := storage.NewUser()
+		err = user.WithUserId(mapping.PassengerId.UUId).Select()
+		if err != nil {
+			logrus.Error(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		driverInfo := &storage.DriverInfo{
+			PassengerId: storage.PassengerId{UUId: mapping.PassengerId.UUId},
+			Name:        user.Name,
+			PickupPoint: storage.LocationLongLat{
+				Long: mapping.PickupPoint.Long,
+				Lat:  mapping.PickupPoint.Lat,
+			},
+			DropoffPoint: storage.LocationLongLat{
+				Long: mapping.DropoffPoint.Long,
+				Lat:  mapping.DropoffPoint.Lat,
+			},
+			Requested: mapping.Requested,
+		}
+		information = append(information, driverInfo)
+	}
+	WriteJSON(writer, information)
 }
 
 func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
