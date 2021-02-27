@@ -2,6 +2,8 @@ package main
 
 import (
     "backend/handler"
+    "backend/storage"
+    "backend/storage/memory"
     "fmt"
     logger "github.com/sirupsen/logrus"
     "github.com/gorilla/mux"
@@ -22,11 +24,10 @@ func main() {
         },
     })
 
-    /*err := storage.Init()
+    err := storage.Init(memory.New())
     if err != nil {
         logger.WithField("error", err).Fatal("could not init storage")
     }
-    */
 
     router := mux.NewRouter()
     handler.Register(router)
