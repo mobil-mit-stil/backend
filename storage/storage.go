@@ -1,48 +1,41 @@
 package storage
 
 type DBObject interface {
-    Create() error
-    Update() error
-    Delete() error
+	Select() error
+	Create() error
+	Update() error
+	Delete() error
 }
 
 type Provider interface {
-    Init() error
-    InsertDriver(driver *Driver) error
-    UpdateDriver(driver *Driver) error
-    DeleteDriver(driver *Driver) error
-    InsertPassenger(passenger *Passenger) error
-    UpdatePassenger(passenger *Passenger) error
-    DeletePassenger(passenger *Passenger) error
+	Init() error
+
+	SelectUser(user *User) error
+	InsertUser(user *User) error
+	UpdateUser(user *User) error
+	DeleteUser(user *User) error
+
+	SelectDriver(driver *Driver) error
+	InsertDriver(driver *Driver) error
+	UpdateDriver(driver *Driver) error
+	DeleteDriver(driver *Driver) error
+
+	SelectPassenger(passenger *Passenger) error
+	InsertPassenger(passenger *Passenger) error
+	UpdatePassenger(passenger *Passenger) error
+	DeletePassenger(passenger *Passenger) error
+
+	SelectSingleMapping(mapping *Mapping) error
+	SelectDriverMapping(id SessionUUId, mapping *[]Mapping) error
+	SelectPassengerMapping(id SessionUUId, mapping *[]Mapping) error
+	InsertMapping(mapping *Mapping) error
+	UpdateMapping(mapping *Mapping) error
+	DeleteMapping(mapping *Mapping) error
 }
 
 var provider Provider
 
 func Init(specificProvider Provider) error {
-    provider = specificProvider
-    return provider.Init()
-}
-
-func InsertDriver(driver *Driver) error {
-    return provider.InsertDriver(driver)
-}
-
-func UpdateDriver(driver *Driver) error {
-    return provider.UpdateDriver(driver)
-}
-
-func DeleteDriver(driver *Driver) error {
-    return provider.DeleteDriver(driver)
-}
-
-func InsertPassenger(passenger *Passenger) error {
-    return provider.InsertPassenger(passenger)
-}
-
-func UpdatePassenger(passenger *Passenger) error {
-    return provider.UpdatePassenger(passenger)
-}
-
-func DeletePassenger(passenger *Passenger) error {
-    return provider.DeletePassenger(passenger)
+	provider = specificProvider
+	return provider.Init()
 }

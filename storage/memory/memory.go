@@ -1,11 +1,11 @@
 package memory
 
-type Provider struct {}
+type Provider struct{}
 
 func New() *Provider {
-    return &Provider{}
+	return &Provider{}
 }
 
 func (*Provider) Init() error {
-    return nil
+	return nil
 }
