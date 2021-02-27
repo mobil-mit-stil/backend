@@ -1,7 +1,7 @@
 package storage
 
 type Driver struct {
-	SessionId   SessionUUId       `json:"sessionId"`
+	Session
 	UserId      UserUUId          `json:"-"`
 	Locations   []LocationLongLat `json:"locations"`
 	Seats       int8              `json:"seats"`
@@ -10,7 +10,7 @@ type Driver struct {
 
 func NewDriver() *Driver {
 	return &Driver{
-		SessionId: NewSessionId(),
+		Session: NewSession(),
 		UserId: "",
 		Locations: make([]LocationLongLat, 0),
 		Seats:     0,

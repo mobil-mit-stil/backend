@@ -1,7 +1,7 @@
 package storage
 
 type Passenger struct {
-	SessionId      SessionUUId     `json:"-"`
+	Session
 	UserId         UserUUId        `json:"-"`
 	Location       LocationLongLat `json:"location"`
 	Destination    LocationLongLat `json:"destination"`
@@ -12,7 +12,7 @@ type Passenger struct {
 
 func NewPassenger() *Passenger {
 	return &Passenger{
-		SessionId: NewSessionId(),
+		Session: NewSession(),
 		UserId:    "",
 		Location: LocationLongLat{
 			Long: 0,

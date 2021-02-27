@@ -15,6 +15,14 @@ func NewUserId() UserUUId {
 	return UserUUId(uuid.New().String())
 }
 
+type Session struct {
+	Id SessionUUId `json:"sessionId"`
+}
+
+func NewSession() Session {
+	return Session{Id: NewSessionId()}
+}
+
 type LocationLongLat struct {
 	Long float64 `json:"longitude"`
 	Lat  float64 `json:"latitude"`
