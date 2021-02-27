@@ -7,12 +7,12 @@ import (
 )
 
 type UserDriver struct {
-	User *storage.User
+	User   *storage.User
 	Driver *storage.Driver
 }
 
 type Pickup struct {
-	Driver *storage.Driver
+	Driver    *storage.Driver
 	Passenger *storage.Passenger
 }
 
@@ -166,7 +166,42 @@ func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
 }
 
 func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
-
+	sessionId, err := GetSessionId(request)
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, BadRequest)
+		return
+	}
+	driver := storage.NewDriver()
+	err = driver.WithSessionId(sessionId).Select()
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
+	}
+	var mappings []*storage.Mapping
+	err = storage.SelectDriverMapping(driver.UserId, &mappings)
+	if err != nil {
+		logrus.Error(err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var estimations []*storage.Estimation
+	err = GetJsonBody(request, &estimations)
+	for _, mapping := range mappings {
+		for _, estimation := range estimations {
+			if mapping.PassengerId.UUId == estimation.PassengerId.UUId {
+				err = mapping.WithTimes(estimation.PickupTime, estimation.DestinationTime).Update()
+				if err != nil {
+					logrus.Error(err)
+					writer.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				break
+			}
+		}
+	}
+	WriteHttpResponse(writer, StatusOk)
 }
 
 func ConfirmRideRequest(writer http.ResponseWriter, request *http.Request) {
