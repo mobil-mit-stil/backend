@@ -19,6 +19,11 @@ func (u *User) WithSessionId(sessionId SessionUUId) *User {
 	return u
 }
 
+func (u *User) WithUserId(userId UserUUId) *User {
+	u.UserId = userId
+	return u
+}
+
 func (u *User) WithName(name string) *User {
 	u.Name = name
 	return u
