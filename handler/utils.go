@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/storage"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -24,12 +25,12 @@ func GetJsonBody(r *http.Request, ref interface{}) error {
 	return nil
 }
 
-func GetSessionId(r *http.Request) (string, error) {
+func GetSessionId(r *http.Request) (storage.SessionUUId, error) {
 	sessionId := r.Header.Get(HeaderAuthorization)
 	if _, err := uuid.Parse(sessionId); err != nil {
 		return "", err
 	}
-	return sessionId, nil
+	return storage.SessionUUId(sessionId), nil
 }
 
 func WriteJSON(w http.ResponseWriter, response interface{}) {
