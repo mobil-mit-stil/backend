@@ -25,23 +25,51 @@ func (m *Provider) SelectDriver(driver *storage.Driver) error {
 	return nil
 }
 
-func (m *Provider) InsertDriver(driver *storage.Driver) error {
+func (m *Provider) SelectDrivers(drivers *[]*storage.Driver) error {
 	driverMutex.Lock()
 	defer driverMutex.Unlock()
 
+	for _, driver := range driverStorage {
+		*drivers = append(*drivers, driver)
+	}
+
+	return nil
+}
+
+func (m *Provider) InsertDriver(driver *storage.Driver) error {
+	driverMutex.Lock()
 	driverStorage[driver.Session.Id] = driver
+	driverMutex.Unlock()
+
+	var passengers []*storage.Passenger
+	err := m.SelectPassengers(&passengers)
+	if err != nil {
+		return err
+	}
+
+	for _, passenger := range passengers {
+		m.updateRoutine(driver, passenger)
+	}
 	return nil
 }
 
 func (m *Provider) UpdateDriver(driver *storage.Driver) error {
-	driverMutex.Lock()
-	defer driverMutex.Unlock()
-
 	err := m.SelectDriver(driver)
 	if err != nil {
 		return err
 	}
+	driverMutex.Lock()
 	driverStorage[driver.Session.Id] = driver
+	driverMutex.Unlock()
+
+	var passengers []*storage.Passenger
+	err = m.SelectPassengers(&passengers)
+	if err != nil {
+		return err
+	}
+	for _, passenger := range passengers {
+		m.updateRoutine(driver, passenger)
+	}
 	return nil
 }
 

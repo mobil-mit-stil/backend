@@ -1,8 +1,10 @@
 package memory
 
 import (
+	"backend/algorithm"
 	"backend/storage"
 	"fmt"
+	logger "github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -148,4 +150,29 @@ func (m *Provider) deleteDriverAssociatedMappings(id storage.UserUUId) error {
 		}
 	}
 	return nil
+}
+
+func (m *Provider) updateRoutine(driver *storage.Driver, passenger *storage.Passenger) {
+	startPoint, ok := algorithm.NearestTolerablePoint(passenger.Location, driver.Locations, passenger.Tolerance)
+	if !ok {
+		return
+	}
+	endPoint, ok := algorithm.NearestTolerablePoint(passenger.Destination, driver.Locations, passenger.Tolerance)
+	if !ok {
+		return
+	}
+	mapping := storage.NewMapping(driver.UserId, passenger.UserId)
+	err := mapping.Select()
+
+	mapping.WithPoints(&startPoint, &endPoint)
+	// err is nil when a mapping already exists and therefore needs to be updated, otherwise create new one
+	if err == nil {
+		err = mapping.Update()
+	} else {
+		err = mapping.Create()
+	}
+
+	if err != nil {
+		logger.Warn(err)
+	}
 }

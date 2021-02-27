@@ -15,11 +15,13 @@ type Provider interface {
 	UpdateUser(user *User) error
 	DeleteUser(user *User) error
 
+	SelectDrivers(drivers *[]*Driver) error
 	SelectDriver(driver *Driver) error
 	InsertDriver(driver *Driver) error
 	UpdateDriver(driver *Driver) error
 	DeleteDriver(driver *Driver) error
 
+	SelectPassengers(passengers *[]*Passenger) error
 	SelectPassenger(passenger *Passenger) error
 	InsertPassenger(passenger *Passenger) error
 	UpdatePassenger(passenger *Passenger) error

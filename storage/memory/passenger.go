@@ -25,23 +25,54 @@ func (m *Provider) SelectPassenger(passenger *storage.Passenger) error {
 	return nil
 }
 
-func (m *Provider) InsertPassenger(passenger *storage.Passenger) error {
+func (m *Provider) SelectPassengers(passengers *[]*storage.Passenger) error {
 	passengerMutex.Lock()
 	defer passengerMutex.Unlock()
 
+	for _, passenger := range passengerStorage {
+		*passengers = append(*passengers, passenger)
+	}
+
+	return nil
+}
+
+func (m *Provider) InsertPassenger(passenger *storage.Passenger) error {
+	passengerMutex.Lock()
 	passengerStorage[passenger.Session.Id] = passenger
+	passengerMutex.Unlock()
+
+	var drivers []*storage.Driver
+	err := m.SelectDrivers(&drivers)
+	if err != nil {
+		return err
+	}
+
+	for _, driver := range drivers {
+		m.updateRoutine(driver, passenger)
+	}
+
 	return nil
 }
 
 func (m *Provider) UpdatePassenger(passenger *storage.Passenger) error {
-	passengerMutex.Lock()
-	defer passengerMutex.Unlock()
-
 	err := m.SelectPassenger(passenger)
 	if err != nil {
 		return err
 	}
+	passengerMutex.Lock()
 	passengerStorage[passenger.Session.Id] = passenger
+	passengerMutex.Unlock()
+
+	var drivers []*storage.Driver
+	err = m.SelectDrivers(&drivers)
+	if err != nil {
+		return err
+	}
+
+	for _, driver := range drivers {
+		m.updateRoutine(driver, passenger)
+	}
+
 	return nil
 }
 
