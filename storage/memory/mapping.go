@@ -29,7 +29,7 @@ func (m *Provider) SelectSingleMapping(mapping *storage.Mapping) error {
 	return fmt.Errorf("could not find mapping for passenger")
 }
 
-func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings []*storage.Mapping) error {
+func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings *[]*storage.Mapping) error {
 	if !id.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
@@ -38,19 +38,19 @@ func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings []*storage.
 		return nil
 	}
 	for _, mapping := range maps {
-		mappings = append(mappings, mapping)
+		*mappings = append(*mappings, mapping)
 	}
 	return nil
 }
 
-func (m *Provider) SelectPassengerMapping(id storage.UserUUId, mappings []*storage.Mapping) error {
+func (m *Provider) SelectPassengerMapping(id storage.UserUUId, mappings *[]*storage.Mapping) error {
 	if !id.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
 	for _, maps := range mappingStorage {
 		for _, mapping := range maps {
 			if mapping.PassengerId.UUId == id {
-				mappings = append(mappings, mapping)
+				*mappings = append(*mappings, mapping)
 			}
 		}
 	}
