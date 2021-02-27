@@ -35,6 +35,10 @@ func (m *Provider) UpdatePassenger(passenger *storage.Passenger) error {
 }
 
 func (m *Provider) DeletePassenger(passenger *storage.Passenger) error {
+	err := m.deletePassengerAssociatedMappings(passenger.UserId)
+	if err != nil {
+		return err
+	}
 	delete(passengerStorage, passenger.Session.Id)
 	return nil
 }

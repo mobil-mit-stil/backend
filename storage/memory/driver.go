@@ -35,6 +35,10 @@ func (m *Provider) UpdateDriver(driver *storage.Driver) error {
 }
 
 func (m *Provider) DeleteDriver(driver *storage.Driver) error {
+	err := m.deleteDriverAssociatedMappings(driver.UserId)
+	if err != nil {
+		return err
+	}
 	delete(driverStorage, driver.Session.Id)
 	return nil
 }

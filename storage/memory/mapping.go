@@ -29,7 +29,7 @@ func (m *Provider) SelectSingleMapping(mapping *storage.Mapping) error {
 	return fmt.Errorf("could not find mapping for passenger")
 }
 
-func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings *[]*storage.Mapping) error {
+func (m *Provider) SelectDriverMappings(id storage.UserUUId, mappings *[]*storage.Mapping) error {
 	if !id.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
@@ -43,7 +43,7 @@ func (m *Provider) SelectDriverMapping(id storage.UserUUId, mappings *[]*storage
 	return nil
 }
 
-func (m *Provider) SelectPassengerMapping(id storage.UserUUId, mappings *[]*storage.Mapping) error {
+func (m *Provider) SelectPassengerMappings(id storage.UserUUId, mappings *[]*storage.Mapping) error {
 	if !id.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")
 	}
@@ -97,5 +97,35 @@ func (m *Provider) DeleteMapping(mapping *storage.Mapping) error {
 		ms = mappingStorage[mapping.DriverId.UUId]
 	}
 	delete(ms, mapping.PassengerId.UUId)
+	return nil
+}
+
+func (m *Provider) deletePassengerAssociatedMappings(id storage.UserUUId) error {
+	var mappings []*storage.Mapping
+	err := m.SelectPassengerMappings(id, &mappings)
+	if err != nil {
+		return err
+	}
+	for _, mapping := range mappings {
+		err = m.DeleteMapping(mapping)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *Provider) deleteDriverAssociatedMappings(id storage.UserUUId) error {
+	var mappings []*storage.Mapping
+	err := m.SelectDriverMappings(id, &mappings)
+	if err != nil {
+		return err
+	}
+	for _, mapping := range mappings {
+		err = m.DeleteMapping(mapping)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

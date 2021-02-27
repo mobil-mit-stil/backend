@@ -101,9 +101,9 @@ func (m *Mapping) Delete() error {
 }
 
 func SelectDriverMapping(id UserUUId, mappings *[]*Mapping) error {
-	return provider.SelectDriverMapping(id, mappings)
+	return provider.SelectDriverMappings(id, mappings)
 }
 
 func SelectPassengerMapping(id UserUUId, mappings *[]*Mapping) error {
-	return provider.SelectPassengerMapping(id, mappings)
+	return provider.SelectPassengerMappings(id, mappings)
 }
