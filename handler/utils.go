@@ -38,3 +38,24 @@ func WriteJSON(w http.ResponseWriter, response interface{}) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+func WriteError(w http.ResponseWriter, err ErrorResponse) {
+	w.Header().Set(HeaderContentType, ContentTypeJSON)
+	w.WriteHeader(err.StatusCode)
+	json.NewEncoder(w).Encode(err)
+}
+
+type ErrorResponse struct {
+	StatusCode int    `json:"statusCode"`
+	Msg        string `json:"msg"`
+}
+
+var BadRequest = ErrorResponse{
+	StatusCode: 400,
+	Msg:        "Bad Request",
+}
+
+var InternalServerError = ErrorResponse{
+	StatusCode: 500,
+	Msg:        "Internal Server Error",
+}
