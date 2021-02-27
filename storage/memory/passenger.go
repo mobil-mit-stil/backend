@@ -4,6 +4,10 @@ import (
 	"backend/storage"
 )
 
+func (m *Provider) SelectPassenger(passenger *storage.Passenger) error {
+	return nil
+}
+
 func (m *Provider) InsertPassenger(passenger *storage.Passenger) error {
 	return nil
 }

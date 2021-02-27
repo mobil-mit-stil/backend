@@ -23,3 +23,19 @@ func (u *User) WithName(name string) *User {
 	u.Name = name
 	return u
 }
+
+func (u *User) Select() error {
+	return provider.SelectUser(u)
+}
+
+func (u *User) Create() error {
+	return provider.InsertUser(u)
+}
+
+func (u *User) Update() error {
+	return provider.UpdateUser(u)
+}
+
+func (u *User) Delete() error {
+	return provider.DeleteUser(u)
+}

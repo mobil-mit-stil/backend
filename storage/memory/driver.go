@@ -4,6 +4,10 @@ import (
 	"backend/storage"
 )
 
+func (m *Provider) SelectDriver(driver *storage.Driver) error {
+	return nil
+}
+
 func (m *Provider) InsertDriver(driver *storage.Driver) error {
 	return nil
 }
