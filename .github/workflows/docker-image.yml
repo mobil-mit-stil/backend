@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set image name
-      run: echo "IMAGE=backend:$(date +%s)" >> $GITHUB_ENV
+      run: echo "IMAGE=ghcr.io/mobil-mit-stil/backend:$(date +%s)" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Login to DockerHub
       uses: docker/login-action@v1 
@@ -26,5 +26,10 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ghcr.io/mobil-mit-stil/${{ env.IMAGE }}
+        tags: ${{ env.IMAGE }}
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v2
+      with:
+        exec: helm upgrade backend ./helm/ --install --wait --atomic --set=app.name=${{ env.IMAGE }}
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
       
