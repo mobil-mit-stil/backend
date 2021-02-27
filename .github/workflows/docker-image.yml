@@ -30,6 +30,6 @@ jobs:
     - name: Deploy
       uses: WyriHaximus/github-action-helm3@v2
       with:
-        exec: helm upgrade backend ./helm/ --install --wait --atomic --set=app.name=${{ env.IMAGE }}
+        exec: helm upgrade backend ./helm/ --install --wait --atomic --set=backendImage=${{ env.IMAGE }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
       
