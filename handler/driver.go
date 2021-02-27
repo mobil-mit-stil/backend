@@ -2,7 +2,7 @@ package handler
 
 import (
 	"backend/storage"
-	"github.com/sirupsen/logrus"
+	logger "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -23,19 +23,19 @@ func StartDriverSession(writer http.ResponseWriter, request *http.Request) {
 	}
 	err := GetJsonBody(request, userDriver)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	err = userDriver.User.WithSessionId(userDriver.Driver.Session.Id).Create()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	err = userDriver.Driver.WithUserId(userDriver.User.UserId).Create()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -45,7 +45,7 @@ func StartDriverSession(writer http.ResponseWriter, request *http.Request) {
 func ConfirmPickup(writer http.ResponseWriter, request *http.Request) {
 	sessionId, err := GetSessionId(request)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -55,32 +55,19 @@ func ConfirmPickup(writer http.ResponseWriter, request *http.Request) {
 	}
 	err = pickup.Driver.WithSessionId(sessionId).Select()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	err = GetJsonBody(request, pickup.Passenger)
 	if err != nil {
-		logrus.Error(err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	mapping := storage.NewMapping(pickup.Driver.UserId, pickup.Passenger.UserId)
-	err = mapping.Select()
-	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	err = pickup.Passenger.Delete()
 	if err != nil {
-		logrus.Error(err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	err = mapping.Delete()
-	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -90,21 +77,21 @@ func ConfirmPickup(writer http.ResponseWriter, request *http.Request) {
 func GetPassengerInfo(writer http.ResponseWriter, request *http.Request) {
 	sessionId, err := GetSessionId(request)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	driver := storage.NewDriver()
 	err = driver.WithSessionId(sessionId).Select()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	var mappings []*storage.Mapping
 	err = storage.SelectDriverMapping(driver.UserId, &mappings)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -113,7 +100,7 @@ func GetPassengerInfo(writer http.ResponseWriter, request *http.Request) {
 		user := storage.NewUser()
 		err = user.WithUserId(mapping.PassengerId.UUId).Select()
 		if err != nil {
-			logrus.Error(err)
+			logger.Error(err)
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -138,27 +125,27 @@ func GetPassengerInfo(writer http.ResponseWriter, request *http.Request) {
 func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
 	sessionId, err := GetSessionId(request)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, BadRequest)
 		return
 	}
 	driver := storage.NewDriver()
 	err = driver.WithSessionId(sessionId).Select()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
 	var locations []storage.LocationLongLat
 	err = GetJsonBody(request, &locations)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
 	err = driver.WithLocations(&locations).Update()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
@@ -168,37 +155,32 @@ func UpdateRouteLocations(writer http.ResponseWriter, request *http.Request) {
 func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
 	sessionId, err := GetSessionId(request)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, BadRequest)
 		return
 	}
 	driver := storage.NewDriver()
 	err = driver.WithSessionId(sessionId).Select()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
-		return
-	}
-	var mappings []*storage.Mapping
-	err = storage.SelectDriverMapping(driver.UserId, &mappings)
-	if err != nil {
-		logrus.Error(err)
-		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	var estimations []*storage.Estimation
 	err = GetJsonBody(request, &estimations)
-	for _, mapping := range mappings {
-		for _, estimation := range estimations {
-			if mapping.PassengerId.UUId == estimation.PassengerId.UUId {
-				err = mapping.WithTimes(estimation.PickupTime, estimation.DestinationTime).Update()
-				if err != nil {
-					logrus.Error(err)
-					writer.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-				break
-			}
+	for _, estimation := range estimations {
+		mapping := storage.NewMapping(driver.UserId, estimation.PassengerId.UUId)
+		err = mapping.Select()
+		if err != nil {
+			logger.Error(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		err = mapping.WithTimes(estimation.PickupTime, estimation.DestinationTime).Update()
+		if err != nil {
+			logger.Error(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 	}
 	WriteHttpResponse(writer, StatusOk)
@@ -207,41 +189,61 @@ func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
 func ConfirmRideRequest(writer http.ResponseWriter, request *http.Request) {
 	sessionId, err := GetSessionId(request)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, BadRequest)
 		return
 	}
 	driver := storage.NewDriver()
 	err = driver.WithSessionId(sessionId).Select()
 	if err != nil {
-		logrus.Error(err)
-		WriteHttpResponse(writer, InternalServerError)
-		return
-	}
-	var mappings []*storage.Mapping
-	err = storage.SelectDriverMapping(driver.UserId, &mappings)
-	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		WriteHttpResponse(writer, InternalServerError)
 		return
 	}
 	var confirmations []*storage.Confirmation
 	err = GetJsonBody(request, &confirmations)
-	for _, mapping := range mappings {
-		for _, confirmation := range confirmations {
-			if mapping.PassengerId.UUId == confirmation.PassengerId.UUId {
-				if confirmation.Accepted {
-					err = mapping.WithStatus(storage.Accepted).Update()
-				} else {
-					err = mapping.WithStatus(storage.Denied).Update()
-				}
-				if err != nil {
-					logrus.Error(err)
-					WriteHttpResponse(writer, InternalServerError)
-					return
-				}
-				break
+	for _, confirmation := range confirmations {
+		mapping := storage.NewMapping(driver.UserId, confirmation.PassengerId.UUId)
+		err = mapping.Select()
+		if err != nil {
+			logger.Error(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if confirmation.Accepted {
+			err = mapping.WithStatus(storage.Accepted).Update()
+			if err != nil {
+				logger.Error(err)
+				WriteHttpResponse(writer, InternalServerError)
+				return
 			}
+			user := storage.NewUser()
+			err = user.WithUserId(confirmation.PassengerId.UUId).Select()
+			if err != nil {
+				logger.Error(err)
+				WriteHttpResponse(writer, InternalServerError)
+				return
+			}
+			passenger := storage.NewPassenger()
+			err = passenger.WithSessionId(user.SessionId).Select()
+			if err != nil {
+				logger.Error(err)
+				WriteHttpResponse(writer, InternalServerError)
+				return
+			}
+			err = driver.WithSeats(driver.Seats - passenger.RequestedSeats).Update()
+			if err != nil {
+				logger.Error(err)
+				WriteHttpResponse(writer, InternalServerError)
+				return
+			}
+		} else {
+			err = mapping.WithStatus(storage.Denied).Update()
+		}
+		if err != nil {
+			logger.Error(err)
+			WriteHttpResponse(writer, InternalServerError)
+			return
 		}
 	}
 	WriteHttpResponse(writer, StatusOk)
