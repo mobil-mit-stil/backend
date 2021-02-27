@@ -16,6 +16,17 @@ func initMappingStorage() {
 	mappingStorage = make(map[storage.UserUUId]map[storage.UserUUId]*storage.Mapping, 0)
 }
 
+func (m *Provider) SelectMappings(mappings *[]*storage.Mapping) error {
+	mappingMutex.Lock()
+	defer mappingMutex.Unlock()
+	for _, driverMappings := range mappingStorage {
+		for _, mapping := range driverMappings {
+			*mappings = append(*mappings, mapping)
+		}
+	}
+	return nil
+}
+
 func (m *Provider) SelectSingleMapping(mapping *storage.Mapping) error {
 	if !mapping.DriverId.UUId.IsValid() || !mapping.PassengerId.UUId.IsValid() {
 		return fmt.Errorf("driverId or passengerId not correct")

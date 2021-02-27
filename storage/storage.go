@@ -10,6 +10,7 @@ type DBObject interface {
 type Provider interface {
 	Init() error
 
+	SelectUsers(users *[]*User) error
 	SelectUser(user *User) error
 	InsertUser(user *User) error
 	UpdateUser(user *User) error
@@ -27,6 +28,7 @@ type Provider interface {
 	UpdatePassenger(passenger *Passenger) error
 	DeletePassenger(passenger *Passenger) error
 
+	SelectMappings(mappings *[]*Mapping) error
 	SelectSingleMapping(mapping *Mapping) error
 	SelectDriverMappings(id UserUUId, mappings *[]*Mapping) error
 	SelectPassengerMappings(id UserUUId, mappings *[]*Mapping) error
