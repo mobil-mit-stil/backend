@@ -205,5 +205,44 @@ func UpdateEstimations(writer http.ResponseWriter, request *http.Request) {
 }
 
 func ConfirmRideRequest(writer http.ResponseWriter, request *http.Request) {
-
+	sessionId, err := GetSessionId(request)
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, BadRequest)
+		return
+	}
+	driver := storage.NewDriver()
+	err = driver.WithSessionId(sessionId).Select()
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
+	}
+	var mappings []*storage.Mapping
+	err = storage.SelectDriverMapping(driver.UserId, &mappings)
+	if err != nil {
+		logrus.Error(err)
+		WriteHttpResponse(writer, InternalServerError)
+		return
+	}
+	var confirmations []*storage.Confirmation
+	err = GetJsonBody(request, &confirmations)
+	for _, mapping := range mappings {
+		for _, confirmation := range confirmations {
+			if mapping.PassengerId.UUId == confirmation.PassengerId.UUId {
+				if confirmation.Accepted {
+					err = mapping.WithStatus(storage.Accepted).Update()
+				} else {
+					err = mapping.WithStatus(storage.Denied).Update()
+				}
+				if err != nil {
+					logrus.Error(err)
+					WriteHttpResponse(writer, InternalServerError)
+					return
+				}
+				break
+			}
+		}
+	}
+	WriteHttpResponse(writer, StatusOk)
 }
