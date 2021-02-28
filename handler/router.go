@@ -62,4 +62,9 @@ func Register(baseRouter *mux.Router) {
 		Path("/debug").
 		Methods(http.MethodGet).
 		HandlerFunc(DumpDatabase)
+
+	baseRouter.
+		Path("/shootmeinthefootjerry").
+		Methods(http.MethodPost).
+		HandlerFunc(CommitNotLive)
 }

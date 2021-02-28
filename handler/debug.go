@@ -2,7 +2,9 @@ package handler
 
 import (
 	"backend/storage"
+	logger "github.com/sirupsen/logrus"
 	"net/http"
+	"os"
 )
 
 type DebugDump struct {
@@ -28,4 +30,9 @@ func DumpDatabase(writer http.ResponseWriter, request *http.Request) {
 	_ = storage.SelectPassengers(&dump.Passengers)
 	_ = storage.SelectMappings(&dump.Mappings)
 	WriteJSON(writer, dump)
+}
+
+func CommitNotLive(writer http.ResponseWriter, request *http.Request) {
+	logger.Info("i've been shot")
+	os.Exit(-1)
 }
