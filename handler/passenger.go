@@ -150,6 +150,8 @@ func GetDriverInfo(writer http.ResponseWriter, request *http.Request) {
 			Name:            user.Name,
 			PickupTime:      mapping.PickupTime,
 			DestinationTime: mapping.DestinationTime,
+			PickupPoint:     mapping.PickupPoint,
+			DropoffPoint:    mapping.DropoffPoint,
 		})
 	}
 	WriteJSON(writer, information)

@@ -3,9 +3,11 @@ package storage
 // /passenger/information response
 type PassengerInfo struct {
 	DriverId
-	Name            string `json:"name"`
-	PickupTime      int32  `json:"pickupTime"`
-	DestinationTime int32  `json:"destinationTime"`
+	Name            string          `json:"name"`
+	PickupTime      int32           `json:"pickupTime"`
+	DestinationTime int32           `json:"destinationTime"`
+	PickupPoint     LocationLongLat `json:"pickupPoint"`
+	DropoffPoint    LocationLongLat `json:"dropoffPoint"`
 }
 
 // /driver/estimations request
